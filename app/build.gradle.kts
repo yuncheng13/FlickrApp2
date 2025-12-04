@@ -55,6 +55,8 @@ dependencies {
     implementation(libs.coroutines.android)
     implementation(libs.retrofit.core)
     implementation(libs.retrofit.gson)
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
