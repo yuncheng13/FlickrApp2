@@ -56,4 +56,8 @@ class PhotosViewModel(private val repo: FlickrRepository) : ViewModel() {
             isRequestInFlight = false
         }
     }
+
+    fun onSearch(query: String) {
+        loadFirstPage(searchQuery = if (query.isBlank()) null else query)
+    }
 }

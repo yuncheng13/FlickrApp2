@@ -69,7 +69,7 @@ class MainActivity : ComponentActivity() {
 
                 PhotosScreen(
                     uiState = uiState.value,
-                    onSearch = { },
+                    onSearch = { query -> vm.onSearch(query)},
                 )
             }
         }
