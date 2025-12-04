@@ -40,7 +40,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
-import coil3.compose.SubcomposeAsyncImage
 import com.example.flickrapp2.data.model.FlickrPhoto
 import com.example.flickrapp2.data.model.getImageUrl
 import com.example.flickrapp2.data.remote.FlickrRepository
@@ -72,6 +71,7 @@ class MainActivity : ComponentActivity() {
                     uiState = uiState.value,
                     onSearch = { query -> vm.onSearch(query)},
                     onLoadMoreIfNeeded = { vm.loadNextPageIfNeeded() },
+                    onRetry = { vm.retry() }
                 )
             }
         }
@@ -84,6 +84,7 @@ fun PhotosScreen(
     uiState: UiState,
     onSearch: (String) -> Unit,
     onLoadMoreIfNeeded: () -> Unit,
+    onRetry: () -> Unit
 ) {
     var queryString by remember { mutableStateOf(uiState.query ?: "") }
 
@@ -109,6 +110,14 @@ fun PhotosScreen(
                 onClick = { onSearch(queryString) }
             ) {
                 Text("Go")
+            }
+        }
+
+        if (uiState.error != null) {
+            Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+                Text("Error: ${uiState.error}")
+                Spacer(modifier = Modifier.height(8.dp))
+                Button(onClick = onRetry) { Text("Retry") }
             }
         }
 

@@ -2,6 +2,7 @@ package com.example.flickrapp2.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.flickrapp2.data.model.FlickrPhoto
+import com.example.flickrapp2.data.model.FlickrResponse
 import com.example.flickrapp2.data.remote.FlickrRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -37,23 +38,29 @@ class PhotosViewModel(private val repo: FlickrRepository) : ViewModel() {
         _uiState.value = _uiState.value.copy(isLoading = true, error = null)
         viewModelScope.launch {
 
-            val result = if (query.isNullOrBlank()) {
-                repo.recentPhotos(page = page, perPage = perPage)
-            } else {
-                repo.searchPhotos(query = query, page = page, perPage = perPage)
+            try {
+
+                val result: FlickrResponse = if (query.isNullOrBlank()) {
+                    repo.recentPhotos(page = page, perPage = perPage)
+                } else {
+                    repo.searchPhotos(query = query, page = page, perPage = perPage)
+                }
+
+                val photosPage = result.photos
+                val newList =
+                    if (page == 1) photosPage.photo else _uiState.value.items + photosPage.photo
+                _uiState.value = _uiState.value.copy(
+                    items = newList,
+                    isLoading = false,
+                    page = photosPage.page,
+                    lastPage = photosPage.pages,
+                    error = null
+                )
+                isRequestInFlight = false
+
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(isLoading = false, error = e.message)
             }
-
-            val photosPage = result.photos
-            val newList = if (page == 1) photosPage.photo else _uiState.value.items + photosPage.photo
-            _uiState.value = _uiState.value.copy(
-                items = newList,
-                isLoading = false,
-                page = photosPage.page,
-                lastPage = photosPage.pages,
-                error = null
-            )
-
-            isRequestInFlight = false
         }
     }
 
@@ -67,5 +74,11 @@ class PhotosViewModel(private val repo: FlickrRepository) : ViewModel() {
         if (state.page >= state.lastPage) return // no more pages
         loadPage(state.page + 1, state.query)
     }
+
+    fun retry() {
+        val state = _uiState.value
+        loadPage(state.page, state.query)
+    }
+
 
 }
