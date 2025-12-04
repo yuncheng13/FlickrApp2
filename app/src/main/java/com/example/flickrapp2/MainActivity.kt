@@ -26,6 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -70,6 +71,7 @@ class MainActivity : ComponentActivity() {
                 PhotosScreen(
                     uiState = uiState.value,
                     onSearch = { query -> vm.onSearch(query)},
+                    onLoadMoreIfNeeded = { vm.loadNextPageIfNeeded() },
                 )
             }
         }
@@ -81,6 +83,7 @@ class MainActivity : ComponentActivity() {
 fun PhotosScreen(
     uiState: UiState,
     onSearch: (String) -> Unit,
+    onLoadMoreIfNeeded: () -> Unit,
 ) {
     var queryString by remember { mutableStateOf(uiState.query ?: "") }
 
@@ -112,6 +115,7 @@ fun PhotosScreen(
         Box(modifier = Modifier.fillMaxSize()) {
             PhotoGrid(
                 items = uiState.items,
+                onLoadMoreIfNeeded = onLoadMoreIfNeeded
             )
             if (uiState.isLoading && uiState.items.isEmpty()) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
@@ -126,6 +130,7 @@ fun PhotosScreen(
 @Composable
 fun PhotoGrid(
     items: List<FlickrPhoto>,
+    onLoadMoreIfNeeded: () -> Unit
 ) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(3),
@@ -136,6 +141,12 @@ fun PhotoGrid(
     ) {
         itemsIndexed(items) { index, item ->
             PhotoItem(item)
+            // trigger pagination when near end
+            if (index >= items.size - 9) {
+                LaunchedEffect(key1 = index) {
+                    onLoadMoreIfNeeded()
+                }
+            }
         }
     }
 }

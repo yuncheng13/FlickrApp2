@@ -60,4 +60,12 @@ class PhotosViewModel(private val repo: FlickrRepository) : ViewModel() {
     fun onSearch(query: String) {
         loadFirstPage(searchQuery = if (query.isBlank()) null else query)
     }
+
+    fun loadNextPageIfNeeded() {
+        val state = _uiState.value
+        if (isRequestInFlight) return
+        if (state.page >= state.lastPage) return // no more pages
+        loadPage(state.page + 1, state.query)
+    }
+
 }
