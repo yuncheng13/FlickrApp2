@@ -34,51 +34,75 @@ class PhotosViewModel(private val repo: FlickrRepository) : ViewModel() {
     }
 
     private fun loadPage(page: Int, query: String?) {
+        if (isRequestInFlight) return
+
         isRequestInFlight = true
-        _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+        updateLoadingState()
+
         viewModelScope.launch {
-
             try {
-
-                val result: FlickrResponse = if (query.isNullOrBlank()) {
-                    repo.recentPhotos(page = page, perPage = perPage)
-                } else {
-                    repo.searchPhotos(query = query, page = page, perPage = perPage)
-                }
-
-                val photosPage = result.photos
-                val newList =
-                    if (page == 1) photosPage.photos else _uiState.value.items + photosPage.photos
-                _uiState.value = _uiState.value.copy(
-                    items = newList,
-                    isLoading = false,
-                    page = photosPage.page,
-                    lastPage = photosPage.pages,
-                    error = null
-                )
-                isRequestInFlight = false
-
+                val response = fetchPhotos(page, query)
+                handleSuccessResponse(response, page)
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(isLoading = false, error = e.message)
+                handleError(e)
+            } finally {
+                isRequestInFlight = false
             }
         }
+    }
+
+    private suspend fun fetchPhotos(page: Int, query: String?): FlickrResponse {
+        return if (query.isNullOrBlank()) {
+            repo.recentPhotos(page = page, perPage = perPage)
+        } else {
+            repo.searchPhotos(query = query, page = page, perPage = perPage)
+        }
+    }
+
+    private fun handleSuccessResponse(response: FlickrResponse, page: Int) {
+        val state = _uiState.value
+        val photosPage = response.photos
+
+        val updatedList = if (page == 1) {
+            photosPage.photos
+        } else {
+            state.items + photosPage.photos // Returns a list containing all elements of the original collection and then all elements of the given elements collection.
+        }
+
+        _uiState.value = state.copy(
+            items = updatedList,
+            isLoading = false,
+            page = photosPage.page,
+            lastPage = photosPage.pages,
+            error = null
+        )
+    }
+
+    private fun handleError(e: Exception) {
+        _uiState.value = _uiState.value.copy(
+            isLoading = false,
+            error = e.message
+        )
+    }
+
+    private fun updateLoadingState() {
+        _uiState.value = _uiState.value.copy(
+            isLoading = true,
+            error = null
+        )
     }
 
     fun onSearch(query: String) {
         loadFirstPage(searchQuery = if (query.isBlank()) null else query)
     }
-
+    fun retry() {
+        val state = _uiState.value
+        loadPage(state.page, state.query)
+    }
     fun loadNextPageIfNeeded() {
         val state = _uiState.value
         if (isRequestInFlight) return
         if (state.page >= state.lastPage) return // no more pages
         loadPage(state.page + 1, state.query)
     }
-
-    fun retry() {
-        val state = _uiState.value
-        loadPage(state.page, state.query)
-    }
-
-
 }
