@@ -5,7 +5,8 @@ Features:
 - Error handling: shows an error state with a retry button to reload photos
 - Pagination: manual implementation listens for the end of current list of photos and will load the next page of photos
 - Unit tests for PhotosViewModel
-
+  
+```
 app/
  ├── data/
  │    ├── model/
@@ -19,3 +20,4 @@ app/
  │    ├── theme/
  │    ├── PhotosViewModel.kt
  └── MainActivity.kt
+```
