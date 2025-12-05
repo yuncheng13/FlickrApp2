@@ -48,7 +48,7 @@ class PhotosViewModel(private val repo: FlickrRepository) : ViewModel() {
 
                 val photosPage = result.photos
                 val newList =
-                    if (page == 1) photosPage.photo else _uiState.value.items + photosPage.photo
+                    if (page == 1) photosPage.photos else _uiState.value.items + photosPage.photos
                 _uiState.value = _uiState.value.copy(
                     items = newList,
                     isLoading = false,
