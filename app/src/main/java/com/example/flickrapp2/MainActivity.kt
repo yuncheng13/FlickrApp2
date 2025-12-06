@@ -94,24 +94,11 @@ fun PhotosScreen(
         TopAppBar(title = {Text("Flickr App")})
         Spacer(modifier = Modifier.height(8.dp))
 
-        Row(
-            modifier = Modifier.padding(horizontal = 8.dp)
-                .fillMaxWidth()
-        ) {
-            TextField(
-                value = queryString,
-                onValueChange = { queryString = it },
-                modifier = Modifier.weight(1f),
-                placeholder = { Text("Search") }
-            )
-
-            Spacer(modifier = Modifier.width(8.dp))
-            Button(
-                onClick = { onSearch(queryString) }
-            ) {
-                Text("Go")
-            }
-        }
+        SearchBar(
+            query = queryString,
+            onQueryChange = { queryString = it },
+            onSearchClick = { onSearch(queryString) }
+        )
 
         if (uiState.error != null) {
             Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
@@ -135,6 +122,33 @@ fun PhotosScreen(
     }
 }
 
+@Composable
+fun SearchBar(
+    query: String,
+    onQueryChange: (String) -> Unit,
+    onSearchClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        TextField(
+            value = query,
+            onValueChange = onQueryChange,
+            modifier = Modifier.weight(1f),
+            placeholder = { Text("Search") }
+        )
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        Button(onClick = onSearchClick) {
+            Text("Go")
+        }
+    }
+}
 
 @Composable
 fun PhotoGrid(
