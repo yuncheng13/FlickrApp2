@@ -54,7 +54,7 @@ class PhotosViewModelTest {
             pages = 1,
             perPage = 30,
             total = 30,
-            photos = photos,
+            photo = photos,
         ))
         whenever(repository.recentPhotos(1))
             .thenReturn(response)
@@ -96,7 +96,7 @@ class PhotosViewModelTest {
             pages = 1,
             perPage = 30,
             total = 30,
-            photos = photos,
+            photo = photos,
         ))
         whenever(repository.recentPhotos(1))
             .thenReturn(response)

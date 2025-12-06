@@ -64,9 +64,9 @@ class PhotosViewModel(private val repo: FlickrRepository) : ViewModel() {
         val photosPage = response.photos
 
         val updatedList = if (page == 1) {
-            photosPage.photos
+            photosPage.photo
         } else {
-            state.items + photosPage.photos // Returns a list containing all elements of the original collection and then all elements of the given elements collection.
+            state.items + photosPage.photo // Returns a list containing all elements of the original collection and then all elements of the given elements collection.
         }
 
         _uiState.value = state.copy(

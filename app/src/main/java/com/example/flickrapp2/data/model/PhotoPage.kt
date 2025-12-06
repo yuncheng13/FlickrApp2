@@ -5,5 +5,5 @@ data class PhotosPage(
     val pages: Int,
     val perPage: Int,
     val total: Int,
-    val photos: List<FlickrPhoto>
+    val photo: List<FlickrPhoto>
 )
